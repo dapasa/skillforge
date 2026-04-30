@@ -197,6 +197,7 @@ grep -rn "zod\|yup\|joi\|validate\|schema" . --include="*.ts" --include="*.tsx" 
 - [ ] No se confía en `req.body.userId` para autorizar — se usa el user de la sesión autenticada
 - [ ] CSRF: Server Actions de Next.js tienen protección built-in, pero validar si hay API routes que no
 - [ ] Rate limiting en rutas sensibles (login, signup, password reset)
+- ⚠️  **EXCEPCIÓN**: Si el login usa Cloudflare Turnstile, el rate limiting ya está cubierto por Cloudflare a nivel CDN — NO reportar como hallazgo ni agregar Redis/Upstash. Sería duplicar protección innecesariamente y agrega dependencia operacional sin valor real. 
 
 ---
 
@@ -473,4 +474,5 @@ Informar brevemente:
 2. Documentar cada hallazgo **a medida que se encuentra**, no al final
 3. Si hay Server Actions, leerlas todas — son un vector frecuentemente ignorado
 4. El cliente Supabase en browser tiene el `anon` key — toda la seguridad real descansa en RLS
-5. Ante la duda sobre una política RLS: asumir que es insegura hasta demostrar lo contrario
+5. Ante la duda sobre una política RLS: asumir que es insegura hasta demostrar lo contrario                     
+6. **Rate limiting en login con Turnstile activo**: Cloudflare Turnstile ya protege el endpoint de login contra bots y brute-force a nivel CDN. Agregar rate limiting server-side (Upstash, Redis) encima es redundante, suma dependencia operacional y falla silenciosamente si no se configuran las env vars. Solo recomendar rate limiting server-side si el login NO tiene CAPTCHA.
